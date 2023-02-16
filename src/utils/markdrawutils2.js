@@ -1,5 +1,4 @@
-//  Triangulation sets of three
-export const TRIANGULATION = [
+const TRIANGULATION = [
   127, 34, 139, 11, 0, 37, 232, 231, 120, 72, 37, 39, 128, 121, 47, 232, 121,
   128, 104, 69, 67, 175, 171, 148, 157, 154, 155, 118, 50, 101, 73, 39, 40, 9,
   151, 108, 48, 115, 131, 194, 204, 211, 74, 40, 185, 80, 42, 183, 40, 92, 186,
@@ -166,64 +165,105 @@ export const TRIANGULATION = [
   343, 399, 344, 360, 440, 420, 437, 456, 360, 420, 363, 361, 401, 288, 265,
   372, 353, 390, 339, 249, 339, 448, 255,
 ];
+function drawResults(ctx, faces, triangulateMesh, boundingBox) {
+  faces.forEach((face) => {
+    const keypoints = face.keypoints.map((keypoint) => [
+      keypoint.x,
+      keypoint.y,
+    ]);
 
-// Triangle drawing method
-// const drawPath = (ctx, points, closePath) => {
-//   // const region = new Path2D();
-//   // region.moveTo(points[0][0], points[0][1]);
-//   // for (let i = 1; i < points.length; i++) {
-//   //   const point = points[i];
-//   //   region.lineTo(point[0], point[1]);
-//   // }
-//   // if (closePath) {
-//   //   region.closePath();
-//   // }
-//   // ctx.strokeStyle = "grey";
-//   // ctx.stroke(region);
-// };
+    if (boundingBox) {
+      ctx.strokeStyle = RED;
+      ctx.lineWidth = 1;
 
-// Drawing Mesh
+      const box = face.box;
+      drawPath(
+        ctx,
+        [
+          [box.xMin, box.yMin],
+          [box.xMax, box.yMin],
+          [box.xMax, box.yMax],
+          [box.xMin, box.yMax],
+        ],
+        true
+      );
+    }
 
-export const drawMesh = (predictions, ctx) => {
-  if (predictions.length > 0) {
-    const keypoints = predictions.keypoints;
-    keypoints.forEach((keypoint) => {
-      const x = keypoint.x;
-      const y = keypoint.y;
+    if (triangulateMesh) {
+      ctx.strokeStyle = GREEN;
+      ctx.lineWidth = 0.5;
+
+      for (let i = 0; i < TRIANGULATION.length / 3; i++) {
+        const points = [
+          TRIANGULATION[i * 3],
+          TRIANGULATION[i * 3 + 1],
+          TRIANGULATION[i * 3 + 2],
+        ].map((index) => keypoints[index]);
+
+        drawPath(ctx, points, true);
+      }
+    } else {
+      ctx.fillStyle = GREEN;
+
+      for (let i = 0; i < NUM_KEYPOINTS; i++) {
+        const x = keypoints[i][0];
+        const y = keypoints[i][1];
+
+        ctx.beginPath();
+        ctx.arc(x, y, 1 /* radius */, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    }
+
+    if (keypoints.length > NUM_KEYPOINTS) {
+      ctx.strokeStyle = RED;
+      ctx.lineWidth = 1;
+
+      const leftCenter = keypoints[NUM_KEYPOINTS];
+      const leftDiameterY = distance(
+        keypoints[NUM_KEYPOINTS + 4],
+        keypoints[NUM_KEYPOINTS + 2]
+      );
+      const leftDiameterX = distance(
+        keypoints[NUM_KEYPOINTS + 3],
+        keypoints[NUM_KEYPOINTS + 1]
+      );
+
       ctx.beginPath();
-      ctx.arc(x, y, 1, 0, 3 * Math.PI);
-      ctx.fillStyle = "aqua";
-      ctx.fill();
-    });
-  }
-};
-// export const drawMesh = (predictions, ctx) => {
-//   if (predictions.length > 0) {
-//     predictions.forEach((prediction) => {
-//       const keypoints = prediction.keypoints;
+      ctx.ellipse(
+        leftCenter[0],
+        leftCenter[1],
+        leftDiameterX / 2,
+        leftDiameterY / 2,
+        0,
+        0,
+        2 * Math.PI
+      );
+      ctx.stroke();
 
-//       //  Draw Triangles
-//       for (let i = 0; i < TRIANGULATION.length; i++) {
-//         // Get sets of three keypoints for the triangle
-//         const points = [
-//           TRIANGULATION[i * 3],
-//           TRIANGULATION[i * 3 + 1],
-//           TRIANGULATION[i * 3 + 2],
-//         ].map((index) => keypoints[index]);
-//         //  Draw triangle
-//         drawPath(ctx, points, true);
-//       }
+      if (keypoints.length > NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS) {
+        const rightCenter = keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS];
+        const rightDiameterY = distance(
+          keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 2],
+          keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 4]
+        );
+        const rightDiameterX = distance(
+          keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 3],
+          keypoints[NUM_KEYPOINTS + NUM_IRIS_KEYPOINTS + 1]
+        );
 
-//       // Draw Dots
-//       for (let i = 0; i < keypoints.length; i++) {
-//         const x = keypoints[i][0];
-//         const y = keypoints[i][1];
-
-//         ctx.beginPath();
-//         ctx.arc(x, y, 1 /* radius */, 0, 3 * Math.PI);
-//         ctx.fillStyle = "aqua";
-//         ctx.fill();
-//       }
-//     });
-//   }
-// };
+        ctx.beginPath();
+        ctx.ellipse(
+          rightCenter[0],
+          rightCenter[1],
+          rightDiameterX / 2,
+          rightDiameterY / 2,
+          0,
+          0,
+          2 * Math.PI
+        );
+        ctx.stroke();
+      }
+    }
+  });
+}
