@@ -7,7 +7,9 @@ import Camera from "./Components/Tracking/Camera";
 
 function App() {
   let kp;
-  console.log(kp);
+
+  const [isloaded, setisloaded] = useState(false);
+  // console.log(kp);
   // let position;
 
   const mapJoints = (keypoints) => {
@@ -22,7 +24,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <Camera mapJoints={mapJoints} />
+        <Camera mapJoints={mapJoints} setdetected={setisloaded} />
         <Canvas
           camera={{ position: [0, 0, 2], fov: 60 }}
           style={{
@@ -38,7 +40,7 @@ function App() {
           }}
         >
           <Suspense fallback={<Loading />}>
-            <ThreeD getJoints={getJoints} />
+            {isloaded ? <ThreeD getJoints={getJoints} /> : <></>}
           </Suspense>
           <ambientLight args={["#ffffff", 1]} />
         </Canvas>

@@ -28,6 +28,9 @@ function Camera(props) {
         maxFaces: 3,
       }
     );
+
+    props.setdetected(true);
+    console.log(props);
     console.log("Detector loaded");
 
     // console.log(detector);
@@ -69,6 +72,7 @@ function Camera(props) {
   const draw = (predictions) => {
     try {
       props.mapJoints(predictions);
+
       if (canvasref.current) {
         const ctx = canvasref.current.getContext("2d");
         if (ctx) {
@@ -85,20 +89,30 @@ function Camera(props) {
 
   const drawFaceMesh = (ctx, prediction) => {
     // props.mapPosition(position);
+
+    //nose point
     const x = prediction.keypoints[6].x;
     const y = prediction.keypoints[6].y;
 
+    //left eye end
     const x2 = prediction.keypoints[143].x;
     const y2 = prediction.keypoints[143].y;
 
+    //right eye end
     const x3 = prediction.keypoints[372].x;
     const y3 = prediction.keypoints[372].y;
 
+    //right ear end
     const x4 = prediction.keypoints[356].x;
     const y4 = prediction.keypoints[356].y;
 
+    //left ear end
     const x5 = prediction.keypoints[127].x;
     const y5 = prediction.keypoints[127].y;
+
+    const width = prediction.box.width;
+    const height = prediction.box.height;
+    // console.log(prediction.box);
 
     // ctx.fillRect(0, 0, 10, 10);
 
@@ -107,7 +121,14 @@ function Camera(props) {
     ctx.fillRect(x3, y3, 2, 2);
     ctx.fillRect(x4, y4, 2, 2);
     ctx.fillRect(x5, y5, 2, 2);
+
     ctx.fillStyle = "#69ffe1";
+
+    // const img = new Image();
+    // img.src = "assets/Images/glass2.png";
+    // console.log(y5);
+
+    // ctx.drawImage(img, x5, y, width, height / 3);
     ctx.fill();
   };
 
