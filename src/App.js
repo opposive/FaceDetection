@@ -7,18 +7,21 @@ import Camera from "./Components/Tracking/Camera";
 
 function App() {
   let kp;
-  console.log(kp);
+  // console.log(kp);
   // let position;
+
+  // const [kps, setkp] = useState([]);
 
   const mapJoints = (keypoints) => {
     kp = keypoints;
+    // setkp((kpp) => [...kpp, kp]);
   };
 
   const getJoints = () => {
     return kp;
   };
 
-  // console.log(kp);
+  // console.log(kps);
   return (
     <div className="App">
       <header className="App-header">
